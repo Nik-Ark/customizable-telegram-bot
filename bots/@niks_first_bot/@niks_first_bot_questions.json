@@ -1,0 +1,54 @@
+[
+  {
+    "reported": false,
+    "reportedQuestion": "",
+    "questions": [
+      {
+        "stickerStart": "https://tlgrm.ru/_/stickers/ab3/3b6/ab33b6ea-9e45-3bad-b9f6-8f07f81b6bd4/20.webp",
+        "firstNameInText": true,
+        "text": "Привет, firstName!",
+        "options": false,
+        "delay": 2000,
+        "stickerEnd": ""
+      },
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Я хочу провести опрос среди участников нашей группы, это займет от одной до пяти минут.",
+        "options": false,
+        "delay": 3000,
+        "stickerEnd": ""
+      },
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Тебе удобно пройти опрос сейчас?\nТы сможешь сделать это в любое удобное для тебя время.",
+        "options": false,
+        "delay": 3000,
+        "stickerEnd": ""
+      },
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Пожалуйста, нажми да, если тебе удобно пройти опрос сейчас.\nИли нет, если хочешь пройти позже.\n(ну или не хочешь совсем...)",
+        "options": true,
+        "delay": 0,
+        "stickerEnd": ""
+      }
+    ]
+  },
+  {
+    "reported": false,
+    "reportedQuestion": "",
+    "questions": [
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Ответь пожалуйста, ты уже думал о том чтобы пригласить кого-нибудь из твоих знакомых в эту группу?",
+        "options": true,
+        "delay": 0,
+        "stickerEnd": ""
+      }
+    ]
+  }
+]

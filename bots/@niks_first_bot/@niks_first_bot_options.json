@@ -1,0 +1,40 @@
+[
+  {
+    "inline_keyboard": [
+      [
+        {
+          "text": "Нет",
+          "callback_data": "0-0"
+        }
+      ],
+      [
+        {
+          "text": "Да",
+          "callback_data": "0-1"
+        }
+      ]
+    ]
+  },
+  {
+    "inline_keyboard": [
+      [
+        {
+          "text": "Да, я хочу кое-кого пригласить",
+          "callback_data": "1-0"
+        }
+      ],
+      [
+        {
+          "text": "Я не знаю кого пригласить",
+          "callback_data": "1-1"
+        }
+      ],
+      [
+        {
+          "text": "Я предпочитаю молиться сам",
+          "callback_data": "1-2"
+        }
+      ]
+    ]
+  }
+]

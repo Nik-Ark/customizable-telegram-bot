@@ -1,0 +1,72 @@
+[
+  [
+    [
+      {
+        "stickerStart": "",
+        "firstNameInText": true,
+        "text": "Хорошо, firstName, возвращайся когда будешь готов!",
+        "delay": 0,
+        "stickerEnd": "",
+        "continue": false
+      }
+    ],
+    [
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Отлично, давай начнём!",
+        "delay": 2000,
+        "stickerEnd": "",
+        "continue": true
+      }
+    ]
+  ],
+  [
+    [
+      {
+        "stickerStart": "",
+        "firstNameInText": true,
+        "text": "firstName, ты можешь сделать это.\nПросто отправь пригласительную ссылку тому кого хочешь пригласить...",
+        "delay": 3000,
+        "stickerEnd": "",
+        "continue": true
+      },
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Ссылка:\n(здесь будет ссылка)",
+        "delay": 2000,
+        "stickerEnd": "",
+        "continue": true
+      }
+    ],
+    [
+      {
+        "stickerStart": "https://tlgrm.ru/_/stickers/ab3/3b6/ab33b6ea-9e45-3bad-b9f6-8f07f81b6bd4/26.webp",
+        "firstNameInText": false,
+        "text": "Значит ты уже всех пригласил!",
+        "delay": 2000,
+        "stickerEnd": "",
+        "continue": true
+      }
+    ],
+    [
+      {
+        "stickerStart": "",
+        "firstNameInText": true,
+        "text": "firstName, в евангелии от Матфея гл.28 стих 19-й Христос говорит своим ученикам:\nИтак идите, научите все народы...",
+        "delay": 6000,
+        "stickerEnd": "",
+        "continue": true
+      },
+      {
+        "stickerStart": "",
+        "firstNameInText": false,
+        "text": "Я молюсь о том чтобы вокруг тебя было больше людей которым хочется говорить о Христе.",
+        "delay": 6000,
+        "stickerEnd": "",
+        "continue": false
+      }
+    ]
+  ]
+]
