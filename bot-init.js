@@ -7,7 +7,7 @@ async function createBot(botName, TOKEN) {
   // В этой функции все Обработчики событий должны быть повешены на бот (сообщения и.т.д.)
   // removeListener should be applied when deleteing bot
 
-  const url = process.env.APP_URL || "";
+  const url = process.env.APP_URL || "https://47e1-185-177-124-220.ngrok.io";
   const bot = new TelegramApi(TOKEN);
 
   await bot.setMyCommands([
@@ -75,6 +75,11 @@ async function createBot(botName, TOKEN) {
 
       // Возможно имя бота лучше заменить на зашифрованный Токен бота, для сохранения в MongoDB
       // Поинвестигировать этот вопрос...
+      // !!!!!!!!!!!!!!! Добавить ли в bot_questions.json поле с индексом сохраняемого вопроса,
+      // для быстрого поиска в массиве вопросов в базе данных:
+      // {"reported": true,
+      // "reportedQuestion": "Some question ?",
+      // "reportedInd": 0}
       await makeReport(
         botName,
         userId,
@@ -108,6 +113,7 @@ async function createBot(botName, TOKEN) {
     }
   });
 
+  // Try to change bot.setWebHook app.post by the order they called in code
   await bot.setWebHook(`${url}/bot${TOKEN}`);
 
   app.post(`/bot${TOKEN}`, async (req, res) => {
