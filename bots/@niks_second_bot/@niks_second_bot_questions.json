@@ -1,7 +1,8 @@
 [
   {
-    "reported": false,
-    "reportedQuestion": "",
+    "reported": true,
+    "reportedQuestion": "из бота 2: Готов ли пройти опрос?",
+    "reportedInd": 0,
     "questions": [
       {
         "stickerStart": "https://tlgrm.ru/_/stickers/ab3/3b6/ab33b6ea-9e45-3bad-b9f6-8f07f81b6bd4/20.webp",
@@ -38,8 +39,9 @@
     ]
   },
   {
-    "reported": false,
-    "reportedQuestion": "",
+    "reported": true,
+    "reportedQuestion": "из бота 2: ты думал о том чтобы пригласить кого-нибудь из твоих знакомых в эту группу?",
+    "reportedInd": 1,
     "questions": [
       {
         "stickerStart": "",

@@ -7,7 +7,7 @@ async function createBot(botName, TOKEN) {
   // В этой функции все Обработчики событий должны быть повешены на бот (сообщения и.т.д.)
   // removeListener should be applied when deleteing bot
 
-  const url = process.env.APP_URL || "https://47e1-185-177-124-220.ngrok.io";
+  const url = process.env.APP_URL || "";
   const bot = new TelegramApi(TOKEN);
 
   await bot.setMyCommands([
@@ -63,23 +63,19 @@ async function createBot(botName, TOKEN) {
     const firstName = msg.from.first_name ? msg.from.first_name : "Друг";
     const lastName = msg.from.last_name ? msg.from.last_name : "last name unknown";
 
-    /* if (botQuestions[questionInd].reported) */
-    if (true) {
+    if (botQuestions[questionInd].reported) {
       const [{ text: usersAnswerText }] = (await botOptions[questionInd]?.inline_keyboard?.[
         optionsAnswerInd
       ]) ?? [{ text: "Options Object at this options answer index doesn't exist" }];
+
       const questionSum =
         (await botQuestions[questionInd]?.reportedQuestion) ??
         "Question Sum at this questions index doesn't exist";
+
       const realFirstName = msg.from.first_name ? msg.from.first_name : "first name unknown";
 
-      // Возможно имя бота лучше заменить на зашифрованный Токен бота, для сохранения в MongoDB
-      // Поинвестигировать этот вопрос...
-      // !!!!!!!!!!!!!!! Добавить ли в bot_questions.json поле с индексом сохраняемого вопроса,
-      // для быстрого поиска в массиве вопросов в базе данных:
-      // {"reported": true,
-      // "reportedQuestion": "Some question ?",
-      // "reportedInd": 0}
+      const reportedInd = botQuestions[questionInd].reportedInd;
+
       await makeReport(
         botName,
         userId,
@@ -87,7 +83,8 @@ async function createBot(botName, TOKEN) {
         realFirstName,
         lastName,
         usersAnswerText,
-        questionSum
+        questionSum,
+        reportedInd
       );
     }
 
@@ -110,16 +107,17 @@ async function createBot(botName, TOKEN) {
         botQuestions[nextQuestion],
         botOptions[nextQuestion]
       );
-    }
+    } /*else {
+      await userFinishedSurvey();
+    }*/
   });
-
-  // Try to change bot.setWebHook app.post by the order they called in code
-  await bot.setWebHook(`${url}/bot${TOKEN}`);
 
   app.post(`/bot${TOKEN}`, async (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
   });
+
+  await bot.setWebHook(`${url}/bot${TOKEN}`);
 
   return bot;
 }

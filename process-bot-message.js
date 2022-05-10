@@ -1,4 +1,6 @@
 const { sleep } = require("./helper");
+const UserAnswer = require("./model/UserAnswer");
+const BotStat = require("./model/BotStat");
 
 async function processBotQuestion(botName, bot, firstName, chatId, botQuestion, botOptions) {
   if (!botQuestion) {
@@ -78,27 +80,42 @@ async function makeReport(
   userName,
   firstName,
   lastName,
-  usersAnswerText,
-  questionSum
+  userAnswer,
+  questionSum,
+  reportedInd
 ) {
-  console.log(
-    "\nFrom makeReport:",
-    "\nbotName:",
-    botName,
-    "\nuserId:",
-    userId,
-    "\nuserName:",
-    userName,
-    "\nfirstName:",
-    firstName,
-    "\nlastName:",
-    lastName,
-    "\nquestionSum:",
-    questionSum,
-    "\nusersAnswer:",
-    usersAnswerText,
-    "\n"
-  );
+  /*  Reading from and writing into MongoDB:  */
+  try {
+    const foundAnswer = await UserAnswer.findOne({ botName, userId }).exec();
+
+    /*  Creating new user Answer object  */
+    const userAnswerObj = { reportedInd, questionSum, userAnswer };
+
+    if (!foundAnswer) {
+      const userAnswers = [userAnswerObj];
+
+      const result = await UserAnswer.create({
+        botName,
+        userId,
+        userData: { userName, firstName, lastName },
+        userAnswers,
+      });
+
+      console.log("result of creating:\n", result);
+    } else {
+      foundAnswer.userAnswers[reportedInd]
+        ? (foundAnswer.userAnswers[reportedInd] = userAnswerObj)
+        : foundAnswer.userAnswers.push(userAnswerObj);
+
+      foundAnswer.lastInteractionWithBot = Date.now();
+
+      const result = await foundAnswer.save();
+
+      console.log("Result of updated userAnswer:\n", result);
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 module.exports = { processBotQuestion, processBotAnswer, makeReport };

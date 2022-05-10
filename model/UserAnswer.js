@@ -1,21 +1,40 @@
 const mongoose = require("mongoose");
 
-const userAnswerSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
+  botName: {
+    type: String,
+    required: true,
+    immutable: true,
+    minlength: 3,
+    maxlength: 30,
+  },
   userId: {
     type: Number,
     required: true,
     immutable: true,
   },
-  createdAt: {
+  firstInteractionWithBot: {
     type: Date,
     immutable: true,
     required: true,
     default: Date.now,
   },
-  updatedAt: {
+  lastInteractionWithBot: {
     type: Date,
     required: true,
     default: Date.now,
+  },
+  firstTimeFinishedSurvey: {
+    type: Date,
+    immutable: true,
+  },
+  lastTimeFinishedSurvey: {
+    type: Date,
+  },
+  countFinishedSurvey: {
+    type: Number,
+    required: true,
+    default: 0,
   },
   userData: {
     userName: String,
@@ -24,12 +43,17 @@ const userAnswerSchema = new mongoose.Schema({
   },
   userAnswers: [
     {
-      question: {
+      reportedInd: {
+        type: Number,
+        required: true,
+        immutable: true,
+      },
+      questionSum: {
         type: String,
         required: true,
         immutable: true,
       },
-      answer: {
+      userAnswer: {
         type: String,
         required: true,
       },
@@ -37,4 +61,4 @@ const userAnswerSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("UserAnswer", userAnswerSchema);
+module.exports = mongoose.model("user_answer", schema);
