@@ -1,24 +1,29 @@
 require("dotenv").config();
 const createBot = require("./bot-init");
 const fs = require("fs");
+const path = require("path");
 
-// Обработать возможные ошибки с чтением файлов json во всём проекте.
-const botsArray = JSON.parse(fs.readFileSync(`./bots/bots.json`));
+/*    Listening uncaught errors    */
+process.on("uncaughtException", (error) => {
+  console.error(`Произошла необрабатываемая ошибка на сервере: ${error.message}`);
+  process.exit(1);
+});
+
+// Считывается синхронно так как программа стартует с полученного массива.
+// В случае ошибки Сервер не стартует.
+const botsArray = JSON.parse(fs.readFileSync(path.join(__dirname, "bots", "bots.json")));
 
 const bots = {};
 
 botsArray.forEach(async (item) => {
-  bots[item.botName] = await createBot(item.botName, item.TOKEN);
+  const success = await createBot(item.botName, item.TOKEN);
+  if (success) {
+    bots[item.botName] = success;
+  }
 });
 
-/*
-console.dir(bots, {
-  depth: 10,
-});
-
-setTimeout(() => {
-  console.dir(bots, {
-    depth: 10,
-  });
-}, 2000);
-*/
+// setTimeout(() => {
+//   console.dir(bots, {
+//     depth: 10,
+//   });
+// }, 2000);

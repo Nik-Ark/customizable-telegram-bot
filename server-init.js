@@ -17,3 +17,5 @@ mongoose.connection.once("open", () => {
 });
 
 module.exports = app;
+
+// ВЫНЕСТИ ЭТОТ ФАЙЛ В ПАПКУ CONFIG ???
