@@ -1,6 +1,6 @@
 const { sleep } = require("./helper");
-const UserAnswer = require("./model/UserAnswer");
-const BotStat = require("./model/BotStat");
+const UserAnswer = require("./models/UserAnswer");
+const BotStat = require("./models/BotStat");
 
 async function processBotQuestion(botName, bot, firstName, chatId, botQuestion, botOptions) {
   if (!botQuestion) {
