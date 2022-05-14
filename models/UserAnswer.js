@@ -13,22 +13,22 @@ const schema = new mongoose.Schema({
     required: true,
     immutable: true,
   },
-  firstInteractionWithBot: {
+  firstInteractWithBot: {
     type: Date,
     immutable: true,
     required: true,
     default: Date.now,
   },
-  lastInteractionWithBot: {
+  lastInteractWithBot: {
     type: Date,
     required: true,
     default: Date.now,
   },
-  firstTimeFinishedSurvey: {
+  firstFinishedSurvey: {
     type: Date,
     immutable: true,
   },
-  lastTimeFinishedSurvey: {
+  lastFinishedSurvey: {
     type: Date,
   },
   countFinishedSurvey: {
@@ -56,6 +56,7 @@ const schema = new mongoose.Schema({
       userAnswer: {
         type: String,
         required: true,
+        // immutable: isQuiz
       },
     },
   ],

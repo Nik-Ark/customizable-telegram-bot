@@ -1,26 +1,36 @@
 require("dotenv").config();
 const createBot = require("./bot-init");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 
 /*    Listening uncaught errors    */
 process.on("uncaughtException", (error) => {
-  console.error(`Произошла необрабатываемая ошибка на сервере: ${error.message}`);
+  console.log(`\nUnhandled Error occured on the Server\n: ${error.message}`);
   process.exit(1);
 });
 
-// Считывается синхронно так как программа стартует с полученного массива.
 // В случае ошибки Сервер не стартует.
-const botsArray = JSON.parse(fs.readFileSync(path.join(__dirname, "bots", "bots.json")));
+async function runServer() {
+  try {
+    const botsArray = await JSON.parse(
+      await fs.readFile(path.join(__dirname, "bots", "bots.json"))
+    );
+
+    botsArray.forEach(async (item) => {
+      const success = await createBot(item.botName, item.TOKEN);
+      if (success) {
+        bots[item.botName] = success;
+      }
+    });
+  } catch (error) {
+    console.log(`\nError in run Server:\n${error.message}`);
+    process.exit(2);
+  }
+}
 
 const bots = {};
 
-botsArray.forEach(async (item) => {
-  const success = await createBot(item.botName, item.TOKEN);
-  if (success) {
-    bots[item.botName] = success;
-  }
-});
+runServer();
 
 // setTimeout(() => {
 //   console.dir(bots, {

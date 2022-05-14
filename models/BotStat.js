@@ -18,19 +18,21 @@ const schema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  firstActivationOfBot: {
+  firstInteractWithBot: {
     type: Date,
     immutable: true,
     required: true,
     default: Date.now,
   },
-  lastActivationOfBot: {
+  lastInteractWithBot: {
     type: Date,
     required: true,
     default: Date.now,
   },
-  // !!! СОЗДАТЬ МАССИВ ID'S ТЕХ КТО ПРОХОДИЛИ ОПРОС БОТА ВООБЩЕ И ТЕХ КТО ЗАВЕРШИЛ ПРОЦЕСС ПОЛНОСТЬЮ
-  idsOfUsers: {
+  idsOfUsersStarted: {
+    type: [Number],
+  },
+  idsOfUsersFinished: {
     type: [Number],
   },
 });
