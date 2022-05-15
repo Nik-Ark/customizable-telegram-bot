@@ -33,7 +33,7 @@ async function saveUserAnswerDB(botName, userAnswer, questionSum, reportedInd, u
     const result = await foundAnswer.save();
     console.log(`UserAnswer saved in DB:\n${result}\n`);
   } catch (error) {
-    console.log(`Error in Accessing DB (saveUserAnswerDB):\n${error.message}\n`);
+    console.log(`Error in saveUserAnswerDB function:\n${error.message}\n`);
   }
 }
 
@@ -42,19 +42,17 @@ async function saveBotStatDB(botName, userId) {
     const foundBotStat = await BotStat.findOne({ botName }).exec();
 
     // INDEXOF METHOD RETURNS -1 WHEN ELEMENT NOT FOUND IN THE ARRAY OR INDEX WHERE IY IS FIRSTLY FOUND
-    const isUserIdInBotStat = (await foundBotStat.idsOfUsersStarted.indexOf(userId)) + 1;
-    if (isUserIdInBotStat) {
-      foundBotStat.lastInteractWithBot = Date.now();
-    } else {
+    const isUserIdInBotStarted = (await foundBotStat.idsOfUsersStarted.indexOf(userId)) + 1;
+    if (!isUserIdInBotStarted) {
       await foundBotStat.idsOfUsersStarted.push(userId);
-      foundBotStat.usersStartedSurvey++;
-      foundBotStat.lastInteractWithBot = Date.now();
     }
+    foundBotStat.usersStartedSurvey = await foundBotStat.idsOfUsersStarted.length;
+    foundBotStat.lastInteractWithBot = Date.now();
 
     const result = await foundBotStat.save();
     console.log(`BotStat saved in DB:\n${result}\n`);
   } catch (error) {
-    console.log(`Error in Accessing DB (saveBotStatDB):\n${error.message}\n`);
+    console.log(`Error in saveBotStatDB function:\n${error.message}\n`);
   }
 }
 
@@ -71,39 +69,59 @@ async function saveBlankBotStatDB(botName) {
     const result = await foundBotStat.save();
     console.log(`Started blank BotStat initialized for bot ${botName}:\n${result}\n`);
   } catch (error) {
-    console.log(`Error in Accessing DB (saveBlankBotStatDB):\n${error.message}\n`);
+    console.log(`Error in saveBlankBotStatDB function:\n${error.message}\n`);
   }
 }
 
-async function saveFinishedSurveyDB(botName, userId) {
+async function saveFinishedSurveyDB(botName, userData) {
+  /*                  Destructure User Data argument object:              */
+  const { userId, userName, realFirstName: firstName, lastName } = await userData;
+
   try {
-    let foundBotStat = await BotStat.findOne({ botName }).exec();
+    const foundBotStat = await BotStat.findOne({ botName }).exec();
 
-    if (!foundBotStat) {
-      return;
-    } else {
-      const isUserIdInBotStat = await foundBotStat.idsOfUsersStarted.indexOf(userId);
-      if (isUserIdInBotStat === -1) {
-        /* WHEN USER ID IS NOT IN THE ARRAY THAT MEANS HE HAS NEVER YET STARTED SURVEY */
-        return;
-      } else {
-        /*USER FINISHED SURVEY BEFORE OR FINISHES IT FIRST TIME OR BY MISTAKE ENTER THE CHAT AND QUIT*/
-        foundBotStat.lastInteractWithBot = Date.now();
-        const didUserFinishBefore = await foundBotStat.idsOfUsersFinished.indexOf(userId);
-
-        if (didUserFinishBefore === -1) {
-          /* USER FINISHES SURVEY FIRST TIME */
-          foundBotStat.idsOfUsersFinished.push(userId);
-        } else {
-          /* WHEN USER FINISHED SURVEY BEFORE */
-        }
-      }
-
-      const result = await foundBotStat.save();
-      console.log(`BotStat of Finished Survey saved in DB:\n${result}\n`);
+    const isUserIdInBotStarted = (await foundBotStat.idsOfUsersStarted.indexOf(userId)) + 1;
+    if (!isUserIdInBotStarted) {
+      await foundBotStat.idsOfUsersStarted.push(userId);
     }
+    foundBotStat.usersStartedSurvey = await foundBotStat.idsOfUsersStarted.length;
+
+    const isUserIdInBotFinished = (await foundBotStat.idsOfUsersFinished.indexOf(userId)) + 1;
+    if (!isUserIdInBotFinished) {
+      await foundBotStat.idsOfUsersFinished.push(userId);
+    }
+    foundBotStat.usersFinishedSurvey = await foundBotStat.idsOfUsersFinished.length;
+
+    foundBotStat.lastInteractWithBot = Date.now();
+    const result = await foundBotStat.save();
+    console.log(`BotStat of Finished Survey saved in DB:\n${result}\n`);
+
+    let foundAnswer = await UserAnswer.findOne({ botName, userId }).exec();
+
+    if (!foundAnswer) {
+      const userAnswers = [];
+
+      foundAnswer = await new UserAnswer({
+        botName,
+        userId,
+        firstFinishedSurvey: Date.now(),
+        lastFinishedSurvey: Date.now(),
+        userFinishedSurvey: true,
+        userData: { userName, firstName, lastName },
+        userAnswers,
+      });
+    } else {
+      foundAnswer.lastInteractWithBot = Date.now();
+      foundAnswer.firstFinishedSurvey = (await foundAnswer.firstFinishedSurvey) ?? Date.now();
+      foundAnswer.lastFinishedSurvey = Date.now();
+      foundAnswer.userFinishedSurvey = true;
+      foundAnswer.userData = { userName, firstName, lastName };
+    }
+
+    const result2 = await foundAnswer.save();
+    console.log(`UserAnswer of Finished Survey saved in DB:\n${result2}\n`);
   } catch (error) {
-    console.log(`Error in Accessing DB (saveFinishedSurveyDB):\n${error.message}\n`);
+    console.log(`Error in Accessing saveFinishedSurveyDB function:\n${error.message}\n`);
   }
 }
 

@@ -34,7 +34,7 @@ async function createBot(botName, TOKEN) {
     );
 
     /*   NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK  */
-    const url = process.env.APP_URL || "https://7187-31-130-85-28.ngrok.io";
+    const url = process.env.APP_URL || "";
     /*   NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK  */
     const bot = new TelegramApi(TOKEN);
 
@@ -85,8 +85,18 @@ async function createBot(botName, TOKEN) {
       const realFirstName = msg.from.first_name ? msg.from.first_name : "first name unknown";
       const lastName = msg.from.last_name ? msg.from.last_name : "last name unknown";
 
-      const isQuestionReported = await botQuestions[questionInd].reported;
       try {
+        const userContinues = await processBotAnswer(
+          botName,
+          bot,
+          firstName,
+          chatId,
+          botAnswers[questionInd][optionsAnswerInd],
+          { userId, userName, realFirstName, lastName }
+        );
+
+        const isQuestionReported = await botQuestions[questionInd].reported;
+
         if (isQuestionReported) {
           const [{ text: userAnswer }] = await botOptions[questionInd].inline_keyboard[
             optionsAnswerInd
@@ -102,15 +112,6 @@ async function createBot(botName, TOKEN) {
             lastName,
           });
         }
-
-        const userContinues = await processBotAnswer(
-          botName,
-          bot,
-          firstName,
-          chatId,
-          botAnswers[questionInd][optionsAnswerInd],
-          { userId, userName, realFirstName, lastName }
-        );
 
         if (botQuestIndexes > questionInd && userContinues) {
           /*   WHEN THERE IS NEXT QUESTION AND USER WANTS TO CONTINUE SURVEY:   */
@@ -130,17 +131,13 @@ async function createBot(botName, TOKEN) {
             firstName,
             { userId, userName, realFirstName, lastName }
           );
-        } else if (botQuestIndexes > questionInd) {
-          /*   WHEN THERE IS QUESTIONS LEFT BUT USER QUIT SURVEY:   */
-
-          console.log(`botQuestIndexes > questionInd: User Quit\n`);
-          // await saveQuitSurveyDB(botName, userId);
         } else if (botQuestIndexes === questionInd) {
           /*   WHEN IT IS THE LAST QUESTION:   */
-
           console.log(`botQuestIndexes === questionInd: User answered all questions\n`);
-          // await saveFinishedSurveyDB(botName, userId);
+
+          await saveFinishedSurveyDB(botName, { userId, userName, realFirstName, lastName });
         }
+        /*  CASE WHEN USER QUIT SURVEY ISN'T HANDLED (if (botQuestIndexes > questionInd)) */
       } catch (error) {
         console.log("\nError Message from bot.on callback_query:");
         console.log(`Bot Name: ${botName}`);
@@ -152,16 +149,16 @@ async function createBot(botName, TOKEN) {
       }
     });
 
-    // BASE BLANK BOT STAT FOR BOT SHOULD BE CREATED WHILE INITIALIZING IN ORDER TO AVOID CASE
-    // WHEN FEW USERS QUERY STAT FOR THIS BOT AND IF NOT FOUND WHOULD CREATE FEW SIMULTANEOUSLY
-    await saveBlankBotStatDB(botName);
-
     app.post(`/bot${TOKEN}`, async (req, res) => {
       bot.processUpdate(req.body);
       res.sendStatus(200);
     });
 
     await bot.setWebHook(`${url}/bot${TOKEN}`);
+
+    // BASE BLANK BOT STAT FOR BOT SHOULD BE CREATED WHILE INITIALIZING IN ORDER TO AVOID CASE
+    // WHEN FEW USERS QUERY STAT FOR THIS BOT AND IF NOT FOUND WHOULD CREATE FEW SIMULTANEOUSLY
+    await saveBlankBotStatDB(botName);
 
     return bot;
   } catch (error) {

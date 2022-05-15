@@ -26,15 +26,14 @@ const schema = new mongoose.Schema({
   },
   firstFinishedSurvey: {
     type: Date,
-    immutable: true,
   },
   lastFinishedSurvey: {
     type: Date,
   },
-  countFinishedSurvey: {
-    type: Number,
+  userFinishedSurvey: {
+    type: Boolean,
     required: true,
-    default: 0,
+    default: false,
   },
   userData: {
     userName: String,

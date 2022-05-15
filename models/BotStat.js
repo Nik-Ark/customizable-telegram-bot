@@ -18,7 +18,7 @@ const schema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  botInitialized: {
+  botStatCreated: {
     type: Date,
     immutable: true,
     required: true,
