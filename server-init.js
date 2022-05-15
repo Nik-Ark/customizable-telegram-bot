@@ -9,10 +9,10 @@ const app = express();
 app.use(express.json());
 
 mongoose.connection.once("open", () => {
-  console.log("Connected to MongoDB");
+  console.log("\nConnected to MongoDB");
 
   app.listen(PORT, () => {
-    console.log(`Express server is listening on port: ${PORT}`);
+    console.log(`Express server is listening on port: ${PORT}\n`);
   });
 });
 

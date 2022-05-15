@@ -11,14 +11,14 @@ const schema = new mongoose.Schema({
   usersStartedSurvey: {
     type: Number,
     required: true,
-    default: 1,
+    default: 0,
   },
   usersFinishedSurvey: {
     type: Number,
     required: true,
     default: 0,
   },
-  firstInteractWithBot: {
+  botInitialized: {
     type: Date,
     immutable: true,
     required: true,
@@ -26,14 +26,16 @@ const schema = new mongoose.Schema({
   },
   lastInteractWithBot: {
     type: Date,
-    required: true,
-    default: Date.now,
   },
   idsOfUsersStarted: {
     type: [Number],
+    required: true,
+    default: [],
   },
   idsOfUsersFinished: {
     type: [Number],
+    required: true,
+    default: [],
   },
 });
 

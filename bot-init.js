@@ -3,7 +3,12 @@ const app = require("./server-init");
 const fs = require("fs").promises;
 const path = require("path");
 const { processBotQuestion, processBotAnswer } = require("./process-bot-message");
-const { saveUserAnswerDB, saveBotStatDB, saveFinishedSurveyDB } = require("./interactionsDB");
+const {
+  saveUserAnswerDB,
+  saveBotStatDB,
+  saveBlankBotStatDB,
+  saveFinishedSurveyDB,
+} = require("./interactionsDB");
 
 async function createBot(botName, TOKEN) {
   // В этой функции все Обработчики событий должны быть повешены на бот (сообщения и.т.д.)
@@ -11,7 +16,10 @@ async function createBot(botName, TOKEN) {
 
   /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
   /****************************************************************************************/
-  /*      НУЖНО ПОСЧИТАТЬ КОЛИЧЕСТВО ВОПРОСОВ В МАССИВЕ: botQuestions (bot-init.js)       */
+  /*                       БАЗОВЫЙ BOTSTAT DOC И ERRORLOGS DOC IN MDB                     */
+  /*         ДОЛЖНЫ БЫТЬ СОЗДАНЫ ПРИ ИНИЦИАЛИЗАЦИИ КАЖДОГО БОТА (bot-init.js)             */
+  /*    ИНАЧЕ ДЛЯ ОДНОГО БОТА МОГУТ БЫТЬ СОЗДАНЫ ДУБЛИРУЮЩИЕ ДОКУМЕНТЫ BOTSTAT ТАК КАК    */
+  /*   НЕСКОЛЬКО ПОЛЬЗОВАТЕЛЕЙ МОГУТ СДЕЛАТЬ ПЕРВЫЙ ЗАПРОС НА ЭТОТ ДОКУМЕНТ ОДНОВРЕМЕННО  */
   /****************************************************************************************/
   /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
   try {
@@ -26,7 +34,7 @@ async function createBot(botName, TOKEN) {
     );
 
     /*   NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK  */
-    const url = process.env.APP_URL || "";
+    const url = process.env.APP_URL || "https://7187-31-130-85-28.ngrok.io";
     /*   NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK     NGROK  */
     const bot = new TelegramApi(TOKEN);
 
@@ -35,8 +43,10 @@ async function createBot(botName, TOKEN) {
       { command: "/info", description: "о боте" },
     ]);
 
+    const botQuestIndexes = (await botQuestions.length) - 1;
+
     bot.on("message", async (msg) => {
-      console.log(msg);
+      console.log(msg, "\n");
 
       const usersInput = msg.text;
       const chatId = msg.chat.id;
@@ -65,7 +75,7 @@ async function createBot(botName, TOKEN) {
     });
 
     bot.on("callback_query", async (msg) => {
-      console.log(msg);
+      console.log(msg, "\n");
 
       const [questionInd, optionsAnswerInd] = msg.data.split("-").map((el) => +el);
       const chatId = msg.message.chat.id;
@@ -93,7 +103,7 @@ async function createBot(botName, TOKEN) {
           });
         }
 
-        const nextQuestionExist = await processBotAnswer(
+        const userContinues = await processBotAnswer(
           botName,
           bot,
           firstName,
@@ -102,7 +112,12 @@ async function createBot(botName, TOKEN) {
           { userId, userName, realFirstName, lastName }
         );
 
-        if (nextQuestionExist) {
+        if (botQuestIndexes > questionInd && userContinues) {
+          /*   WHEN THERE IS NEXT QUESTION AND USER WANTS TO CONTINUE SURVEY:   */
+          console.log(
+            `botQuestIndexes > questionInd && userContinues: Next question is going...\n`
+          );
+
           await saveBotStatDB(botName, userId);
 
           const nextQuestion = questionInd + 1;
@@ -115,8 +130,16 @@ async function createBot(botName, TOKEN) {
             firstName,
             { userId, userName, realFirstName, lastName }
           );
-        } else {
-          await saveFinishedSurveyDB(botName, userId);
+        } else if (botQuestIndexes > questionInd) {
+          /*   WHEN THERE IS QUESTIONS LEFT BUT USER QUIT SURVEY:   */
+
+          console.log(`botQuestIndexes > questionInd: User Quit\n`);
+          // await saveQuitSurveyDB(botName, userId);
+        } else if (botQuestIndexes === questionInd) {
+          /*   WHEN IT IS THE LAST QUESTION:   */
+
+          console.log(`botQuestIndexes === questionInd: User answered all questions\n`);
+          // await saveFinishedSurveyDB(botName, userId);
         }
       } catch (error) {
         console.log("\nError Message from bot.on callback_query:");
@@ -128,6 +151,10 @@ async function createBot(botName, TOKEN) {
         // ДАННЫЕ ВЫШЕ БУДУТ СОХРАНЕНЫ В БАЗУ: saveErrorLogDB()
       }
     });
+
+    // BASE BLANK BOT STAT FOR BOT SHOULD BE CREATED WHILE INITIALIZING IN ORDER TO AVOID CASE
+    // WHEN FEW USERS QUERY STAT FOR THIS BOT AND IF NOT FOUND WHOULD CREATE FEW SIMULTANEOUSLY
+    await saveBlankBotStatDB(botName);
 
     app.post(`/bot${TOKEN}`, async (req, res) => {
       bot.processUpdate(req.body);
